@@ -13,6 +13,11 @@ static const unsigned int textmargin  = 5;        /* margin for the text display
 static bool showbar                   = true;     /* false means no bar */
 static bool topbar                    = true;     /* false means bottom bar */
 
+/* bar */
+static const char *fontfamily = "Courier New";
+static int fontsize = 12;
+static DWORD fontpitch = FIXED_PITCH;
+
 /* tagging */
 static const char tags[][MAXTAGLEN] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 static unsigned int tagset[] = {1, 1}; /* after start, first tag is selected */

@@ -419,7 +419,9 @@ drawtext(const char *text, COLORREF col[ColLast], bool invert) {
 	SetBkMode(dc.hdc, TRANSPARENT);
 	SetTextColor(dc.hdc, col[invert ? ColBG : ColFG]);
 
-	HFONT font = (HFONT)GetStockObject(SYSTEM_FONT); 
+        HFONT font = CreateFont(fontsize, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE,
+                                DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS,
+                                CLEARTYPE_QUALITY, fontpitch, TEXT(fontfamily));
 	SelectObject(dc.hdc, font);
 
 	DrawText(dc.hdc, text, -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
