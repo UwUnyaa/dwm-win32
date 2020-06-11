@@ -95,7 +95,11 @@ dwm uses a modifier key (denoted by =MOD=) which defaults to =CTRL + ALT=.
 
 - =MOD + n= Toggles border of currently focused window.
 
-- =MOD + i= Display classname of currently focused window, useful for wiriting
+- =MOD + i= Increase the number of windows in the master area in tiled layout.
+
+- =MOD + i= Decrease the number of windows in the master area in tiled layout.
+
+- =MOD + Shift + i= Display classname of currently focused window, useful for wiriting
   tagging rules.
 
 - =MOD + Tab= Toggles to the previously selected tags.
