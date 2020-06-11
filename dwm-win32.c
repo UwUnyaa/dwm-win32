@@ -131,6 +131,7 @@ static Client *getclient(HWND hwnd);
 LPSTR getclientclassname(HWND hwnd);
 LPSTR getclienttitle(HWND hwnd);
 HWND getroot(HWND hwnd);
+static void incnmaster(const Arg *arg);
 static void grabkeys(HWND hwnd);
 static void killclient(const Arg *arg);
 static Client *manage(HWND hwnd);
@@ -176,6 +177,7 @@ static int sx, sy, sw, sh; /* X display screen geometry x, y, width, height */
 static int by, bh, blw;    /* bar geometry y, height and layout symbol width */
 static int wx, wy, ww, wh; /* window area geometry x, y, width, height, bar excluded */
 static unsigned int seltags, sellt;
+int nmaster = 1;
 
 static Client *clients = NULL;
 static Client *sel = NULL;
@@ -558,6 +560,13 @@ grabkeys(HWND hwnd) {
         for (i = 0; i < LENGTH(keys); i++) {
                 RegisterHotKey(hwnd, i, keys[i].mod, keys[i].key);
         }
+}
+
+void
+incnmaster(const Arg *arg)
+{
+	nmaster = MAX(nmaster + arg->i, 0);
+	arrange();
 }
 
 bool
@@ -1120,36 +1129,29 @@ textnw(const char *text, unsigned int len) {
 
 void
 tile(void) {
-        int x, y, h, w, mw;
-        unsigned int i, n;
-        Client *c;
+	unsigned int i, n, h, mw, my, ty;
+	Client *c;
 
-        for(n = 0, c = nexttiled(clients); c; c = nexttiled(c->next), n++);
-        if(n == 0)
-                return;
+	for (n = 0, c = nexttiled(clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
 
-        /* master */
-        c = nexttiled(clients);
-        mw = mfact * ww;
-        resize(c, wx, wy, (n == 1 ? ww : mw) - 2 * c->bw, wh - 2 * c->bw);
-
-        if(--n == 0)
-                return;
-
-        /* tile stack */
-        x = (wx + mw > c->x + c->w) ? c->x + c->w + 2 * c->bw : wx + mw;
-        y = wy;
-        w = (wx + mw > c->x + c->w) ? wx + ww - x : ww - mw;
-        h = wh / n;
-        if(h < bh)
-                h = wh;
-
-        for(i = 0, c = nexttiled(c->next); c; c = nexttiled(c->next), i++) {
-                resize(c, x, y, w - 2 * c->bw, /* remainder */ ((i + 1 == n)
-                       ? wy + wh - y - 2 * c->bw : h - 2 * c->bw));
-                if(h != wh)
-                        y = c->y + HEIGHT(c);
-        }
+	if (n > nmaster)
+		mw = nmaster ? ww * mfact : 0;
+	else
+		mw = ww;
+	for (i = my = ty = 0, c = nexttiled(clients); c; c = nexttiled(c->next), i++)
+		if (i < nmaster) {
+			h = (wh - my) / (MIN(n, nmaster) - i);
+			resize(c, wx, wy + my, mw - (2*c->bw), h - (2*c->bw));
+			if (my + HEIGHT(c) < wh)
+				my += HEIGHT(c);
+		} else {
+			h = (wh - ty) / (n - i);
+			resize(c, wx + mw, wy + ty, ww - mw - (2*c->bw), h - (2*c->bw));
+			if (ty + HEIGHT(c) < wh)
+				ty += HEIGHT(c);
+		}
 }
 
 void
