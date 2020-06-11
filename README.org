@@ -9,13 +9,6 @@ management]] to Windows systems.
 #+CAPTION: dwm-win32 screenshot
 [[https://www.brain-dump.org/projects/dwm-win32/screenshot.png#center]]
 
-* News
-*Warning: I no longer actively use and develop dwm-win32.*
-
-- [[https://lists.suckless.org/dwm/0904/7891.html][dwm-win32-alpha2]] (21.04.2009) [[https://www.brain-dump.org/projects/dwm-win32/dwm-win32-alpha2.tar.gz][tar.gz]] [[https://www.brain-dump.org/projects/dwm-win32/dwm-win32-alpha2.zip][zip]] [[https://www.brain-dump.org/projects/dwm-win32/dwm-win32-alpha2.exe][exe]]
-
-- [[https://lists.suckless.org/dwm/0903/7775.html][dwm-win32-alpha1]] (21.03.2009) [[https://www.brain-dump.org/projects/dwm-win32-alpha1.tar.gz][tar.gz]] [[https://www.brain-dump.org/projects/dwm-win32-alpha1.zip][zip]] [[https://www.brain-dump.org/projects/dwm-win32-alpha1.exe][exe]]
-
 * Description
 dwm manages windows in tiled, monocle and floating layouts. Either layout can
 be applied dynamically, optimising the environment for the application in use
@@ -43,10 +36,11 @@ dwm draws a small border around windows to indicate the focus state.
 
 * Installation
 Either use the pre compiled exe files or download the source and compile it
-with [[http://www.mingw.org/][MinGW]] and [[http://www.mingw.org/wiki/MSYS][MSYS]].
+with [[http://www.mingw.org/][MinGW]] and [[https://www.msys2.org/][MSYS2]].
 
 #+BEGIN_EXAMPLE
   $EDITOR config.mk
+  make config.h
   $EDITOR config.h
   make
   make install
@@ -153,12 +147,7 @@ Unfortunately the =SetWindowsHookEx= thingy seems to require a separate DLL
 which will be loaded into each process address space.
 
 * Development
-You can always fetch the current code base from the git repository located at
-[[https://github.com/martanne/dwm-win32/][Github]] or [[https://git.sr.ht/~martanne/dwm-win32][Sourcehut]].
-
-If you have comments, suggestions, ideas, a bug report, a patch or something
-else related to dwm-win32 then write to the [[https://suckless.org/community][suckless developer mailing list]] or
-contact me directly.
+You can always fetch the current code base from this git repository.
 
 * Related
 Below are some links which are in one way or another related to dwm-win32.
