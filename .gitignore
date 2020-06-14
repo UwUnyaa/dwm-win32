@@ -1,0 +1,7 @@
+# remove this ignore if you use a repo for your configured dwm-win32 setup
+config.h
+
+TAGS
+*.o
+*.exe
+*~
