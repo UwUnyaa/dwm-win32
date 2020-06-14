@@ -27,7 +27,7 @@
 
 /* macros */
 #define ISVISIBLE(x)            ((x)->tags & tagset[seltags])
-#define ISFOCUSABLE(x)                  (!(x)->isminimized && ISVISIBLE(x) && IsWindowVisible((x)->hwnd))
+#define ISFOCUSABLE(x)          (!(x)->isminimized && ISVISIBLE(x) && IsWindowVisible((x)->hwnd))
 #define LENGTH(x)               (sizeof x / sizeof x[0])
 #define MAX(a, b)               ((a) > (b) ? (a) : (b))
 #define MIN(a, b)               ((a) < (b) ? (a) : (b))
@@ -183,7 +183,7 @@ static Client *clients = NULL;
 static Client *sel = NULL;
 static Client *stack = NULL;
 static Layout *lt[] = { NULL, NULL };
-static UINT shellhookid;        /* Window Message id */
+static UINT shellhookid;   /* Window Message id */
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -929,7 +929,10 @@ setborder(Client *c, bool border) {
 
 void
 setvisibility(HWND hwnd, bool visibility) {
-        SetWindowPos(hwnd, 0, 0, 0, 0, 0, (visibility ? SWP_SHOWWINDOW : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+        SetWindowPos(hwnd, 0, 0, 0, 0, 0,
+                     (visibility
+                      ? SWP_SHOWWINDOW
+                      : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 }
 
 void
