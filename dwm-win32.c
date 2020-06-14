@@ -428,6 +428,7 @@ drawtext(const char *text, COLORREF col[ColLast], bool invert) {
   SelectObject(dc.hdc, font);
 
   DrawText(dc.hdc, text, -1, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+  DeleteObject(font);
 }
 
 void
