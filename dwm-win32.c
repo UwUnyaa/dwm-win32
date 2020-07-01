@@ -197,7 +197,7 @@ typedef BOOL (*RegisterShellHookWindowProc) (HWND);
 static HWND dwmhwnd, barhwnd;
 static char stext[256];
 static int sx, sy, sw, sh; /* X display screen geometry x, y, width, height */
-static int by, bh, blw;    /* bar geometry y, height and layout symbol width */
+static int bh, blw;        /* bar geometry y, height and layout symbol width */
 static unsigned int seltags, sellt;
 int nmaster = 1;
 
@@ -1282,7 +1282,7 @@ unmanage(Client *c) {
 
 void
 updatebar(void) {
-  SetWindowPos(barhwnd, showbar ? HWND_TOPMOST : HWND_NOTOPMOST, 0, by, selmon->ww, bh, (showbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+  SetWindowPos(barhwnd, showbar ? HWND_TOPMOST : HWND_NOTOPMOST, 0, selmon->by, selmon->ww, bh, (showbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
 }
 
 void
@@ -1348,7 +1348,7 @@ updategeom(void)
   selmon->ww = sw;
   selmon->wh = showbar ? sh - bh : sh;
   /* bar position */
-  by = showbar ? (topbar ? selmon->wy - bh : selmon->wy + selmon->wh) : -bh;
+  selmon->by = showbar ? (topbar ? selmon->wy - bh : selmon->wy + selmon->wh) : -bh;
   debug("updategeom: %d x %d\n", selmon->ww, selmon->wh);
 
   return dirty;
