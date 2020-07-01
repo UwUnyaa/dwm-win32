@@ -198,7 +198,6 @@ static HWND dwmhwnd, barhwnd;
 static char stext[256];
 static int sx, sy, sw, sh; /* X display screen geometry x, y, width, height */
 static int by, bh, blw;    /* bar geometry y, height and layout symbol width */
-static int wx, wy, ww, wh; /* window area geometry x, y, width, height, bar excluded */
 static unsigned int seltags, sellt;
 int nmaster = 1;
 
@@ -289,7 +288,7 @@ buttonpress(unsigned int button, POINTS *point) {
   }
   else if(point->x < x + blw)
     click = ClkLtSymbol;
-  else if(point->x > wx + ww - TEXTW(stext))
+  else if(point->x > selmon->wx + selmon->ww - TEXTW(stext))
     click = ClkStatusText;
   else
     click = ClkWinTitle;
@@ -410,10 +409,10 @@ drawbar(void) {
   else
     x = dc.x;
   dc.w = TEXTW(stext);
-  dc.x = ww - dc.w;
+  dc.x = selmon->ww - dc.w;
   if(dc.x < x) {
     dc.x = x;
-    dc.w = ww - x;
+    dc.w = selmon->ww - x;
   }
   drawtext(stext, dc.norm, false);
 
@@ -756,7 +755,7 @@ monocle(void) {
   Client *c;
 
   for(c = nexttiled(clients); c; c = nexttiled(c->next)) {
-    resize(c, wx, wy, ww - 2 * c->bw, wh - 2 * c->bw);
+    resize(c, selmon->wx, selmon->wy, selmon->ww - 2 * c->bw, selmon->wh - 2 * c->bw);
   }
 }
 
@@ -1182,19 +1181,19 @@ tile(void) {
     return;
 
   if (n > nmaster)
-    mw = nmaster ? ww * mfact : 0;
+    mw = nmaster ? selmon->ww * mfact : 0;
   else
-    mw = ww;
+    mw = selmon->ww;
   for (i = my = ty = 0, c = nexttiled(clients); c; c = nexttiled(c->next), i++)
     if (i < nmaster) {
-      h = (wh - my) / (MIN(n, nmaster) - i);
-      resize(c, wx, wy + my, mw - (2*c->bw), h - (2*c->bw));
-      if (my + HEIGHT(c) < wh)
+      h = (selmon->wh - my) / (MIN(n, nmaster) - i);
+      resize(c, selmon->wx, selmon->wy + my, mw - (2*c->bw), h - (2*c->bw));
+      if (my + HEIGHT(c) < selmon->wh)
         my += HEIGHT(c);
     } else {
-      h = (wh - ty) / (n - i);
-      resize(c, wx + mw, wy + ty, ww - mw - (2*c->bw), h - (2*c->bw));
-      if (ty + HEIGHT(c) < wh)
+      h = (selmon->wh - ty) / (n - i);
+      resize(c, selmon->wx + mw, selmon->wy + ty, selmon->ww - mw - (2*c->bw), h - (2*c->bw));
+      if (ty + HEIGHT(c) < selmon->wh)
         ty += HEIGHT(c);
     }
 }
@@ -1283,7 +1282,7 @@ unmanage(Client *c) {
 
 void
 updatebar(void) {
-  SetWindowPos(barhwnd, showbar ? HWND_TOPMOST : HWND_NOTOPMOST, 0, by, ww, bh, (showbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+  SetWindowPos(barhwnd, showbar ? HWND_TOPMOST : HWND_NOTOPMOST, 0, by, selmon->ww, bh, (showbar ? SWP_SHOWWINDOW : SWP_HIDEWINDOW) | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
 }
 
 void
@@ -1319,6 +1318,9 @@ updategeom(void)
     selmon = wintomon();
   }
 
+  /* HACK: set selmon to all monitors since dwm-win32 supports only one right now */
+  selmon = mons;
+
   /* original code from win32 version */
   RECT wa;
   HWND hwnd = FindWindow("Shell_TrayWnd", NULL);
@@ -1341,13 +1343,13 @@ updategeom(void)
   bh = 20; /* XXX: fixed value */
 
   /* window area geometry */
-  wx = sx;
-  wy = showbar && topbar ? sy + bh : sy;
-  ww = sw;
-  wh = showbar ? sh - bh : sh;
+  selmon->wx = sx;
+  selmon->wy = showbar && topbar ? sy + bh : sy;
+  selmon->ww = sw;
+  selmon->wh = showbar ? sh - bh : sh;
   /* bar position */
-  by = showbar ? (topbar ? wy - bh : wy + wh) : -bh;
-  debug("updategeom: %d x %d\n", ww, wh);
+  by = showbar ? (topbar ? selmon->wy - bh : selmon->wy + selmon->wh) : -bh;
+  debug("updategeom: %d x %d\n", selmon->ww, selmon->wh);
 
   return dirty;
 }
