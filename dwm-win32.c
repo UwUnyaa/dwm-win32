@@ -184,8 +184,9 @@ static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unmanage(Client *c);
 static void updatebar(void);
-static void updategeom(void);
+static int updategeom(void);
 static void view(const Arg *arg);
+static Monitor * wintomon(void);
 static void zoom(const Arg *arg);
 
 /* Shell hook stuff */
@@ -206,6 +207,7 @@ static Client *sel = NULL;
 static Client *stack = NULL;
 static Layout *lt[] = { NULL, NULL };
 static UINT shellhookid;   /* Window Message id */
+static Monitor *mons, *selmon;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -329,6 +331,23 @@ cleanup() {
 void
 clearurgent(Client *c) {
   c->isurgent = false;
+}
+
+Monitor *
+createmon(void)
+{
+  Monitor *m;
+
+  m = calloc(1, sizeof(Monitor));
+  m->tagset[0] = m->tagset[1] = 1;
+  m->mfact = mfact;
+  m->nmaster = nmaster;
+  m->showbar = showbar;
+  m->topbar = topbar;
+  m->lt[0] = &layouts[0];
+  m->lt[1] = &layouts[1 % LENGTH(layouts)];
+  strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
+  return m;
 }
 
 void
@@ -1268,7 +1287,39 @@ updatebar(void) {
 }
 
 void
-updategeom(void) {
+updatebarpos(Monitor *m)
+{
+  m->wy = m->my;
+  m->wh = m->mh;
+  if (m->showbar) {
+    m->wh -= bh;
+    m->by = m->topbar ? m->wy : m->wy + m->wh;
+    m->wy = m->topbar ? m->wy + bh : m->wy;
+  } else
+    m->by = -bh;
+}
+
+int
+updategeom(void)
+{
+  int dirty = 0;
+
+  /* default monitor setup */
+  if (!mons)
+    mons = createmon();
+  if (mons->mw != sw || mons->mh != sh) {
+    dirty = 1;
+    mons->mw = mons->ww = sw;
+    mons->mh = mons->wh = sh;
+    updatebarpos(mons);
+  }
+
+  if (dirty) {
+    selmon = mons;
+    selmon = wintomon();
+  }
+
+  /* original code from win32 version */
   RECT wa;
   HWND hwnd = FindWindow("Shell_TrayWnd", NULL);
   /* check if the windows taskbar is visible and adjust
@@ -1297,6 +1348,8 @@ updategeom(void) {
   /* bar position */
   by = showbar ? (topbar ? wy - bh : wy + wh) : -bh;
   debug("updategeom: %d x %d\n", ww, wh);
+
+  return dirty;
 }
 
 void
@@ -1307,6 +1360,26 @@ view(const Arg *arg) {
   if(arg->ui & TAGMASK)
     tagset[seltags] = arg->ui & TAGMASK;
   arrange();
+}
+
+Monitor *
+wintomon(void)
+{
+  #if 0
+  int x, y;
+  Client *c;
+  Monitor *m;
+
+  if (w == root && getrootptr(&x, &y))
+    return recttomon(x, y, 1, 1);
+  for (m = mons; m; m = m->next)
+    if (w == m->barwin)
+      return m;
+  if ((c = wintoclient(w)))
+    return c->mon;
+  #endif
+
+  return selmon;
 }
 
 void
