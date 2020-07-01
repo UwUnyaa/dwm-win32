@@ -72,6 +72,7 @@ typedef struct {
   const Arg arg;
 } Button;
 
+typedef struct Monitor Monitor;
 typedef struct Client Client;
 struct Client {
   HWND hwnd;
@@ -103,6 +104,26 @@ typedef struct {
   const char *symbol;
   void (*arrange)(void);
 } Layout;
+
+struct Monitor {
+  char ltsymbol[16];
+  float mfact;
+  int nmaster;
+  int num;
+  int by;               /* bar geometry */
+  int mx, my, mw, mh;   /* screen size */
+  int wx, wy, ww, wh;   /* window area  */
+  unsigned int seltags;
+  unsigned int sellt;
+  unsigned int tagset[2];
+  int showbar;
+  int topbar;
+  Client *clients;
+  Client *sel;
+  Client *stack;
+  Monitor *next;
+  const Layout *lt[2];
+};
 
 typedef struct {
   const char *class;
