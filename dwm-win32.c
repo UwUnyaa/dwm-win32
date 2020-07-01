@@ -26,7 +26,7 @@
 #define NAME                    "dwm-win32"                     /* Used for window name/class */
 
 /* macros */
-#define ISVISIBLE(x)            ((x)->tags & tagset[seltags])
+#define ISVISIBLE(x)            ((x)->tags & tagset[selmon->seltags])
 #define ISFOCUSABLE(x)          (!(x)->isminimized && ISVISIBLE(x) && IsWindowVisible((x)->hwnd))
 #define LENGTH(x)               (sizeof x / sizeof x[0])
 #define MAX(a, b)               ((a) > (b) ? (a) : (b))
@@ -198,7 +198,6 @@ static HWND dwmhwnd, barhwnd;
 static char stext[256];
 static int sx, sy, sw, sh; /* X display screen geometry x, y, width, height */
 static int bh, blw;        /* bar geometry y, height and layout symbol width */
-static unsigned int seltags, sellt;
 int nmaster = 1;
 
 static Client *clients = NULL;
@@ -234,19 +233,19 @@ applyrules(Client *c) {
     if((!r->title || strstr(getclienttitle(c->hwnd), r->title))
        && (!r->class || strstr(getclientclassname(c->hwnd), r->class))) {
       c->isfloating = r->isfloating;
-      c->tags |= r->tags & TAGMASK ? r->tags & TAGMASK : tagset[seltags];
+      c->tags |= r->tags & TAGMASK ? r->tags & TAGMASK : tagset[selmon->seltags];
     }
   }
   if(!c->tags)
-    c->tags = tagset[seltags];
+    c->tags = tagset[selmon->seltags];
 }
 
 void
 arrange(void) {
   showhide(stack);
   focus(NULL);
-  if(lt[sellt]->arrange)
-    lt[sellt]->arrange();
+  if(lt[selmon->sellt]->arrange)
+    lt[selmon->sellt]->arrange();
   restack();
 }
 
@@ -318,7 +317,7 @@ cleanup() {
   DeregisterShellHookWindow(dwmhwnd);
 
   view(&a);
-  lt[sellt] = &foo;
+  lt[selmon->sellt] = &foo;
   while(stack)
     unmanage(stack);
 
@@ -396,14 +395,14 @@ drawbar(void) {
   dc.x = 0;
   for(i = 0; i < LENGTH(tags); i++) {
     dc.w = TEXTW(tags[i]);
-    col = tagset[seltags] & 1 << i ? dc.sel : dc.norm;
+    col = tagset[selmon->seltags] & 1 << i ? dc.sel : dc.norm;
     drawtext(tags[i], col, urg & 1 << i);
     drawsquare(sel && sel->tags & 1 << i, occ & 1 << i, urg & 1 << i, col);
     dc.x += dc.w;
   }
   if(blw > 0) {
     dc.w = blw;
-    drawtext(lt[sellt]->symbol, dc.norm, false);
+    drawtext(lt[selmon->sellt]->symbol, dc.norm, false);
     x = dc.x + dc.w;
   }
   else
@@ -978,10 +977,10 @@ setvisibility(HWND hwnd, bool visibility) {
 
 void
 setlayout(const Arg *arg) {
-  if(!arg || !arg->v || arg->v != lt[sellt])
-    sellt ^= 1;
+  if(!arg || !arg->v || arg->v != lt[selmon->sellt])
+    selmon->sellt ^= 1;
   if(arg && arg->v)
-    lt[sellt] = (Layout *)arg->v;
+    lt[selmon->sellt] = (Layout *)arg->v;
   if(sel)
     arrange();
   else
@@ -993,7 +992,7 @@ void
 setmfact(const Arg *arg) {
   float f;
 
-  if(!arg || !lt[sellt]->arrange)
+  if(!arg || !lt[selmon->sellt]->arrange)
     return;
   f = arg->f < 1.0 ? arg->f + mfact : arg->f - 1.0;
   if(f < 0.1 || f > 0.9)
@@ -1257,10 +1256,10 @@ toggletag(const Arg *arg) {
 
 void
 toggleview(const Arg *arg) {
-  unsigned int mask = tagset[seltags] ^ (arg->ui & TAGMASK);
+  unsigned int mask = tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 
   if(mask) {
-    tagset[seltags] = mask;
+    tagset[selmon->seltags] = mask;
     arrange();
   }
 }
@@ -1356,11 +1355,11 @@ updategeom(void)
 
 void
 view(const Arg *arg) {
-  if((arg->ui & TAGMASK) == tagset[seltags])
+  if((arg->ui & TAGMASK) == tagset[selmon->seltags])
     return;
-  seltags ^= 1; /* toggle sel tagset */
+  selmon->seltags ^= 1; /* toggle sel tagset */
   if(arg->ui & TAGMASK)
-    tagset[seltags] = arg->ui & TAGMASK;
+    tagset[selmon->seltags] = arg->ui & TAGMASK;
   arrange();
 }
 
@@ -1388,7 +1387,7 @@ void
 zoom(const Arg *arg) {
   Client *c = sel;
 
-  if(!lt[sellt]->arrange || lt[sellt]->arrange == monocle || (sel && sel->isfloating))
+  if(!lt[selmon->sellt]->arrange || lt[selmon->sellt]->arrange == monocle || (sel && sel->isfloating))
     return;
   if(c == nexttiled(clients))
     if(!c || !(c = nexttiled(c->next)))
