@@ -196,7 +196,7 @@ typedef BOOL (*RegisterShellHookWindowProc) (HWND);
 /* variables */
 static HWND dwmhwnd, barhwnd;
 static char stext[256];
-static int sx, sy, sw, sh; /* X display screen geometry x, y, width, height */
+static int sw, sh; /* X display screen geometry x, y, width, height */
 static int bh, blw;        /* bar geometry y, height and layout symbol width */
 int nmaster = 1;
 
@@ -781,14 +781,14 @@ resize(Client *c, int x, int y, int w, int h) {
     setvisibility(c->hwnd, false);
     return;
   }
-  if(x > sx + sw)
+  if(x > sw)
     x = sw - WIDTH(c);
-  if(y > sy + sh)
+  if(y > sh)
     y = sh - HEIGHT(c);
-  if(x + w + 2 * c->bw < sx)
-    x = sx;
-  if(y + h + 2 * c->bw < sy)
-    y = sy;
+  if(x + w + 2 * c->bw < 0)
+    x = 0;
+  if(y + h + 2 * c->bw < 0)
+    y = 0;
   if(h < bh)
     h = bh;
   if(w < bh)
@@ -1328,13 +1328,9 @@ updategeom(void)
    */
   if (hwnd && IsWindowVisible(hwnd)) {
     SystemParametersInfo(SPI_GETWORKAREA, 0, &wa, 0);
-    sx = wa.left;
-    sy = wa.top;
     sw = wa.right - wa.left;
     sh = wa.bottom - wa.top;
   } else {
-    sx = GetSystemMetrics(SM_XVIRTUALSCREEN);
-    sy = GetSystemMetrics(SM_YVIRTUALSCREEN);
     sw = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     sh = GetSystemMetrics(SM_CYVIRTUALSCREEN);
   }
@@ -1342,8 +1338,8 @@ updategeom(void)
   bh = 20; /* XXX: fixed value */
 
   /* window area geometry */
-  selmon->wx = sx;
-  selmon->wy = showbar && topbar ? sy + bh : sy;
+  selmon->wx = 0;
+  selmon->wy = showbar && topbar ? bh : 0;
   selmon->ww = sw;
   selmon->wh = showbar ? sh - bh : sh;
   /* bar position */
