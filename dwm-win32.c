@@ -198,7 +198,6 @@ static HWND dwmhwnd, barhwnd;
 static char stext[256];
 static int sw, sh; /* X display screen geometry x, y, width, height */
 static int bh, blw;        /* bar geometry y, height and layout symbol width */
-int nmaster = 1;
 
 static Client *clients = NULL;
 static Client *sel = NULL;
@@ -605,7 +604,7 @@ grabkeys(HWND hwnd) {
 void
 incnmaster(const Arg *arg)
 {
-  nmaster = MAX(nmaster + arg->i, 0);
+  selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
   arrange();
 }
 
@@ -1179,13 +1178,13 @@ tile(void) {
   if (n == 0)
     return;
 
-  if (n > nmaster)
-    mw = nmaster ? selmon->ww * mfact : 0;
+  if (n > selmon->nmaster)
+    mw = selmon->nmaster ? selmon->ww * mfact : 0;
   else
     mw = selmon->ww;
   for (i = my = ty = 0, c = nexttiled(clients); c; c = nexttiled(c->next), i++)
-    if (i < nmaster) {
-      h = (selmon->wh - my) / (MIN(n, nmaster) - i);
+    if (i < selmon->nmaster) {
+      h = (selmon->wh - my) / (MIN(n, selmon->nmaster) - i);
       resize(c, selmon->wx, selmon->wy + my, mw - (2*c->bw), h - (2*c->bw));
       if (my + HEIGHT(c) < selmon->wh)
         my += HEIGHT(c);
