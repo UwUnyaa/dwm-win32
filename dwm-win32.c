@@ -263,10 +263,10 @@ attachstack(Client *c) {
 
 bool
 istoolwindowof(Client *p, Client *c) {
-  debug(" istoolwindowof: %s\n", getclienttitle(p->hwnd));
-  debug("       floating: %d\n", c->isfloating);
-  debug("           root: %d == %d\n", p->root, c->root);
-  debug("       threadid: %d == %d\n", p->threadid, c->threadid);
+  /* debug(" istoolwindowof: %s\n", getclienttitle(p->hwnd)); */
+  /* debug("       floating: %d\n", c->isfloating); */
+  /* debug("           root: %d == %d\n", p->root, c->root); */
+  /* debug("       threadid: %d == %d\n", p->threadid, c->threadid); */
   return c->isfloating && (p->root == c->root || p->threadid == c->threadid);
 }
 
@@ -615,7 +615,7 @@ ismanageable(HWND hwnd){
     return true;
 
   HWND parent = GetParent(hwnd);
-  HWND owner = GetWindow(hwnd, GW_OWNER);
+  /* HWND owner = GetWindow(hwnd, GW_OWNER); */ /* seems to be only used for debugging */
   int style = GetWindowLong(hwnd, GWL_STYLE);
   int exstyle = GetWindowLong(hwnd, GWL_EXSTYLE);
   bool pok = (parent != 0 && ismanageable(parent));
@@ -625,26 +625,26 @@ ismanageable(HWND hwnd){
   if (pok && !getclient(parent))
     manage(parent);
 
-  debug("ismanageable: %s\n", getclienttitle(hwnd));
-  debug("    hwnd: %d\n", hwnd);
-  debug("  window: %d\n", IsWindow(hwnd));
-  debug(" visible: %d\n", IsWindowVisible(hwnd));
-  debug("  parent: %d\n", parent);
-  debug("parentok: %d\n", pok);
-  debug("   owner: %d\n", owner);
-  debug(" toolwin: %d\n", istool);
-  debug("  appwin: %d\n", isapp);
+  /* debug("ismanageable: %s\n", getclienttitle(hwnd)); */
+  /* debug("    hwnd: %d\n", hwnd); */
+  /* debug("  window: %d\n", IsWindow(hwnd)); */
+  /* debug(" visible: %d\n", IsWindowVisible(hwnd)); */
+  /* debug("  parent: %d\n", parent); */
+  /* debug("parentok: %d\n", pok); */
+  /* debug("   owner: %d\n", owner); */
+  /* debug(" toolwin: %d\n", istool); */
+  /* debug("  appwin: %d\n", isapp); */
 
   /* XXX: should we do this? */
   if (GetWindowTextLength(hwnd) == 0) {
-    debug("   title: NULL\n");
-    debug("  manage: false\n");
+    /* debug("   title: NULL\n"); */
+    /* debug("  manage: false\n"); */
     return false;
   }
 
   if (style & WS_DISABLED) {
-    debug("disabled: true\n");
-    debug("  manage: false\n");
+    /* debug("disabled: true\n"); */
+    /* debug("  manage: false\n"); */
     return false;
   }
 
@@ -668,15 +668,15 @@ ismanageable(HWND hwnd){
 
   if ((parent == 0 && IsWindowVisible(hwnd)) || pok) {
     if ((!istool && parent == 0) || (istool && pok)) {
-      debug("  manage: true\n");
+      /* debug("  manage: true\n"); */
       return true;
     }
     if (isapp && parent != 0) {
-      debug("  manage: true\n");
+      /* debug("  manage: true\n"); */
       return true;
     }
   }
-  debug("  manage: false\n");
+  /* debug("  manage: false\n"); */
   return false;
 }
 
@@ -695,7 +695,7 @@ manage(HWND hwnd) {
   if (c)
     return c;
 
-  debug(" manage %s\n", getclienttitle(hwnd));
+  /* debug(" manage %s\n", getclienttitle(hwnd)); */
 
   WINDOWINFO wi = {
     .cbSize = sizeof(WINDOWINFO),
@@ -728,11 +728,11 @@ manage(HWND hwnd) {
   c->isfloating = (wi.dwStyle & WS_POPUP) ||
     (!(wi.dwStyle & WS_MINIMIZEBOX) && !(wi.dwStyle & WS_MAXIMIZEBOX));
 
-  debug(" window style: %d\n", wi.dwStyle);
-  debug("     minimize: %d\n", wi.dwStyle & WS_MINIMIZEBOX);
-  debug("     maximize: %d\n", wi.dwStyle & WS_MAXIMIZEBOX);
-  debug("        popup: %d\n", wi.dwStyle & WS_POPUP);
-  debug("   isfloating: %d\n", c->isfloating);
+  /* debug(" window style: %d\n", wi.dwStyle); */
+  /* debug("     minimize: %d\n", wi.dwStyle & WS_MINIMIZEBOX); */
+  /* debug("     maximize: %d\n", wi.dwStyle & WS_MAXIMIZEBOX); */
+  /* debug("        popup: %d\n", wi.dwStyle & WS_POPUP); */
+  /* debug("   isfloating: %d\n", c->isfloating); */
 
   applyrules(c);
 
@@ -740,7 +740,7 @@ manage(HWND hwnd) {
     setborder(c, false);
 
   if (c->isfloating && IsWindowVisible(hwnd)) {
-    debug(" new floating window: x: %d y: %d w: %d h: %d\n", wi.rcWindow.left, wi.rcWindow.top, wi.rcWindow.right - wi.rcWindow.left, wi.rcWindow.bottom - wi.rcWindow.top);
+    /* debug(" new floating window: x: %d y: %d w: %d h: %d\n", wi.rcWindow.left, wi.rcWindow.top, wi.rcWindow.right - wi.rcWindow.left, wi.rcWindow.bottom - wi.rcWindow.top); */
     resize(c, wi.rcWindow.left, wi.rcWindow.top, wi.rcWindow.right - wi.rcWindow.left, wi.rcWindow.bottom - wi.rcWindow.top);
   }
 
@@ -798,7 +798,7 @@ resize(Client *c, int x, int y, int w, int h) {
     c->y = y;
     c->w = w;
     c->h = h;
-    debug(" resize %d: %s: x: %d y: %d w: %d h: %d\n", c->hwnd, getclienttitle(c->hwnd), x, y, w, h);
+    /* debug(" resize %d: %s: x: %d y: %d w: %d h: %d\n", c->hwnd, getclienttitle(c->hwnd), x, y, w, h); */
     SetWindowPos(c->hwnd, HWND_TOP, c->x, c->y, c->w, c->h, SWP_NOACTIVATE);
   }
 }
@@ -858,7 +858,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
          * switch, therefore we ignore them in this case.
          */
       case HSHELL_WINDOWCREATED:
-        debug("window created: %s\n", getclienttitle((HWND)lParam));
+        /* debug("window created: %s\n", getclienttitle((HWND)lParam)); */
         if (!c && ismanageable((HWND)lParam)) {
           c = manage((HWND)lParam);
           managechildwindows(c);
@@ -867,17 +867,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
       case HSHELL_WINDOWDESTROYED:
         if (c) {
-          debug(" window %s: %s\n", c->ignore ? "hidden" : "destroyed", getclienttitle(c->hwnd));
+          /* debug(" window %s: %s\n", c->ignore ? "hidden" : "destroyed", getclienttitle(c->hwnd)); */
           if (!c->ignore)
             unmanage(c);
           else
             c->ignore = false;
         } else {
-          debug(" unmanaged window destroyed\n");
+          /* debug(" unmanaged window destroyed\n"); */
         }
         break;
       case HSHELL_WINDOWACTIVATED:
-        debug(" window activated: %s || %d\n", c ? getclienttitle(c->hwnd) : "unknown", (HWND)lParam);
+        /* debug(" window activated: %s || %d\n", c ? getclienttitle(c->hwnd) : "unknown", (HWND)lParam); */
         if (c) {
           Client *t = sel;
           managechildwindows(c);
@@ -886,12 +886,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
            * window got minimized
            */
           if (t && (t->isminimized = IsIconic(t->hwnd))) {
-            debug(" active window got minimized: %s\n", getclienttitle(t->hwnd));
+            /* debug(" active window got minimized: %s\n", getclienttitle(t->hwnd)); */
             arrange();
           }
           /* the newly focused window was minimized */
           if (sel->isminimized) {
-            debug(" newly active window was minimized: %s\n", getclienttitle(sel->hwnd));
+            /* debug(" newly active window was minimized: %s\n", getclienttitle(sel->hwnd)); */
             sel->isminimized = false;
             zoom(NULL);
           }
@@ -1149,13 +1149,13 @@ tag(const Arg *arg) {
 
   if(sel && arg->ui & TAGMASK) {
     sel->tags = arg->ui & TAGMASK;
-    debug("window tagged: %d %s\n", sel->hwnd, getclienttitle(sel->hwnd));
+    /* debug("window tagged: %d %s\n", sel->hwnd, getclienttitle(sel->hwnd)); */
     for (c = managechildwindows(sel); c; c = nextchild(sel, c->next)) {
-      debug(" child window which is %s tagged: %s\n", c->isfloating ? "floating" : "normal", getclienttitle(c->hwnd));
+      /* debug(" child window which is %s tagged: %s\n", c->isfloating ? "floating" : "normal", getclienttitle(c->hwnd)); */
       if (c->isfloating)
         c->tags = arg->ui & TAGMASK;
     }
-    debug("window tagged finished\n");
+    /* debug("window tagged finished\n"); */
     arrange();
   }
 }
@@ -1266,7 +1266,7 @@ toggleview(const Arg *arg) {
 
 void
 unmanage(Client *c) {
-  debug(" unmanage %s\n", getclienttitle(c->hwnd));
+  /* debug(" unmanage %s\n", getclienttitle(c->hwnd)); */
   if (c->wasvisible)
     setvisibility(c->hwnd, true);
   if (!c->isfloating)
@@ -1348,7 +1348,7 @@ updategeom(void)
   selmon->wh = showbar ? sh - bh : sh;
   /* bar position */
   selmon->by = showbar ? (topbar ? selmon->wy - bh : selmon->wy + selmon->wh) : -bh;
-  debug("updategeom: %d x %d\n", selmon->ww, selmon->wh);
+  /* debug("updategeom: %d x %d\n", selmon->ww, selmon->wh); */
 
   return dirty;
 }
